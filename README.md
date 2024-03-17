@@ -1,4 +1,4 @@
-# GitHub Dependency Downloader
+# RepoVac
 
 This Python script automates the process of downloading specific dependency files from all active repositories within a specified GitHub organization. It supports a wide range of programming languages and their respective package managers, including Python, JavaScript, TypeScript, Java, Kotlin, Go, Ruby, Rust, Elixir, and PHP.
 
