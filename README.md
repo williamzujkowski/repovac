@@ -1,49 +1,54 @@
-# RepoVac
+# RepoVac: GitHub Repository Dependency File Vacuum
 
-This Python script automates the process of downloading specific dependency files from all active repositories within a specified GitHub organization. It supports a wide range of programming languages and their respective package managers, including Python, JavaScript, TypeScript, Java, Kotlin, Go, Ruby, Rust, Elixir, and PHP.
+RepoVac is a Python script designed to fetch specified dependency files from all active repositories within a given GitHub organization. It's tailored to retrieve common dependency management files across various programming languages, offering insights into the dependency structure of numerous projects.
 
 ## Features
 
-- Downloads dependency files for multiple programming languages.
-- Skips archived repositories to focus on active projects.
-- Handles GitHub API rate limits gracefully.
-- Retries downloads for temporary failures.
-- Logs successful downloads, temporary failures, and non-existent files.
-- User-defined GitHub organization via command-line prompt.
+- Dynamically fetches repositories from any specified GitHub organization.
+- Supports a wide range of programming languages and their respective dependency files.
+- Checks GitHub's API rate limits to prevent exceeding the allotted number of requests.
+- Skips archived repositories to focus on active development projects.
+- Generates detailed logs of successfully downloaded files, failed attempts, and files that do not exist.
+- Retries downloads for files that failed in the initial attempt (excluding files not found).
+- Organizes downloaded files into a directory structure based on the repository name, contained within a root folder named with the current date and time for easy identification.
 
-## Prerequisites
+## Supported Files
 
-- Python 3.6 or newer.
-- A GitHub Personal Access Token (PAT) with appropriate permissions to access the organization's repositories.
-- The `requests`, `tqdm`, and `base64` Python packages (usually included with Python standard library for `base64`).
+The script is configured to look for the following dependency files across various programming languages:
 
-## Setup
-
-1. Clone this repository or download the script to your local machine.
-2. Ensure you have Python installed on your machine.
-3. Install the required Python packages:
-
-    ```bash
-    pip install requests tqdm
-    ```
-
-4. Set your GitHub Personal Access Token (PAT) as an environment variable:
-
-    - For Linux/macOS:
-
-    ```bash
-    export GITHUB_AUTH_TOKEN="your_token_here"
-    ```
-
-    - For Windows:
-
-    ```cmd
-    set GITHUB_AUTH_TOKEN=your_token_here
-    ```
+- **Python**: `requirements.txt`, `Pipfile.lock`
+- **JavaScript/TypeScript**: `package-lock.json`, `yarn.lock`
+- **Java**: `pom.xml`, `build.gradle`
+- **Kotlin**: `build.gradle.kts`
+- **Go**: `go.mod`
+- **Ruby**: `Gemfile.lock`
+- **Rust**: `Cargo.lock`
+- **Elixir**: `mix.lock`
+- **PHP**: `composer.lock`
 
 ## Usage
 
-To run the script, navigate to the directory where the script is located and execute it with Python:
+Before running the script, ensure you have Python installed on your system and the necessary libraries by running:
 
 ```bash
-python github_dependency_downloader.py
+pip install requests tqdm
+```
+Set up a GitHub Personal Access Token (PAT) and export it as an environment variable:
+```
+export GITHUB_AUTH_TOKEN='your_personal_access_token_here'
+```
+To start the script, navigate to the directory containing repovac.py and run:
+
+```
+python repovac.py
+```
+
+The script will prompt you to enter the GitHub organization name. After inputting the organization name, the script begins processing.
+
+
+The script outputs the files into a directory structure within the ./dependencies_<timestamp>/ directory, where <timestamp> reflects the run time. Inside this directory, you'll find:
+```
+success_list.txt: A list of files successfully downloaded.
+failure_list.txt: A list of files that failed to download, including the error reason.
+non_existent_files.txt: A list of files that were not found (HTTP 404).
+```
