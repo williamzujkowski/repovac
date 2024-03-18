@@ -9,6 +9,7 @@ PAT = os.environ.get("GITHUB_AUTH_TOKEN")
 if not PAT:
     raise ValueError("GITHUB_AUTH_TOKEN environment variable is not set.")
 
+# Prompt for GitHub organization name
 ORG_NAME = input("Enter the GitHub organization name: ")
 BASE_URL = "https://api.github.com"
 
@@ -32,7 +33,7 @@ def check_rate_limit(response):
         limit = int(response.headers["X-RateLimit-Limit"])
         reset = int(response.headers["X-RateLimit-Reset"])
         reset_time = datetime.fromtimestamp(reset, timezone.utc).strftime(
-            "%Y-%m-%d %H:%M:%S UTC"
+            "%Y-%m-%d %H-%M-%S UTC"
         )
         if remaining < 10:
             sleep_time = max(reset - time.time(), 0) + 10
@@ -59,7 +60,7 @@ def get_repos(org_name):
 
 
 def download_and_save_file(
-    repo_name, file_path, save_path, success_list, failure_list, non_existent_files
+    repo_name, file_path, success_list, failure_list, non_existent_files
 ):
     url = f"{BASE_URL}/repos/{repo_name}/contents/{file_path}"
     headers = {"Authorization": f"token {PAT}"}
@@ -67,7 +68,10 @@ def download_and_save_file(
     check_rate_limit(response)
     if response.status_code == 200:
         content = base64.b64decode(response.json()["content"])
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        save_path = os.path.join(base_dir, repo_name, file_path)
+        os.makedirs(
+            os.path.dirname(save_path), exist_ok=True
+        )  # Ensure the directory exists
         with open(save_path, "wb") as file:
             file.write(content)
         success_list.append(save_path)
@@ -84,8 +88,10 @@ def download_and_save_file(
 
 
 def main():
+    global base_dir  # Declare base_dir as global to use it in download_and_save_file
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     base_dir = f"./dependencies_{timestamp}"
+    os.makedirs(base_dir, exist_ok=True)  # Create the base directory early
     success_list, failure_list, non_existent_files = [], [], []
 
     repos = get_repos(ORG_NAME)
@@ -98,14 +104,8 @@ def main():
             for file_name in tqdm(
                 files, desc=f"Files in {repo_name}", leave=False, unit="file"
             ):
-                save_path = os.path.join(base_dir, repo_name, file_name)
                 download_and_save_file(
-                    repo_name,
-                    file_name,
-                    save_path,
-                    success_list,
-                    failure_list,
-                    non_existent_files,
+                    repo_name, file_name, success_list, failure_list, non_existent_files
                 )
 
     # Write success, failure, and non-existent file lists to files
